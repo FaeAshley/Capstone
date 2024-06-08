@@ -22,6 +22,32 @@ function matchplayRequest($url) {
 }
 
 
+// Added as of 6/7/24
+function ifpaRequest($initial_url) {
+    $api_key = 'e157f6e1c9a2ef9e3ef03acffd681204';
+    $url = $initial_url . '?api_key=' . $api_key;
+
+    // Set up HTTP request options
+    $opts = [  
+        'http' => [
+            'method' => 'GET',
+            'header' => "Content-Type: application/json\r\n" .
+                        "Accept: application/json\r\n"
+        ]
+    ];
+
+    // Create the stream context
+    $context = stream_context_create($opts);
+    
+    // Fetch the URL content
+    $file = file_get_contents($url, false, $context);
+
+    // Decode JSON response
+    $data = json_decode($file, true);
+
+    return $data;
+}
+
 function getGameData($tournament_id, $game_id) {
 // Get player IDs and placements from game + tournament ID
 // EX [gameId] => 4348941
@@ -335,4 +361,64 @@ function getPlayersArray($tournament_data) {
     }
 
     return $players;
+}
+
+
+// Added as of 6/7/24
+
+function getPlayerDetails($player_id) {
+// Returns Array of player info including name, IFPA ID, matchplay rank,
+//     ?Array
+// (
+//     [user] => Array
+//         (
+//             [userId] => 2465
+//             [name] => John Shopple
+//             [firstName] => John
+//             [lastName] => Shopple
+//             [ifpaId] => 11590
+//             [role] => player
+//             [flag] => 
+//             [location] => Mesa, AZ
+//             [pronouns] => he
+//             [initials] => JPS
+//             [avatar] => 
+//             [banner] => 
+//             [tournamentAvatar] => https://mp-avatars.sfo3.cdn.digitaloceanspaces.com/t-avatar-U2465-1686564276.jpg
+//             [createdAt] => 2016-09-13T22:49:46.000000Z
+//         )
+
+//     [rating] => Array
+//         (
+//             [ratingId] => 5112
+//             [userId] => 2465
+//             [ifpaId] => 11590
+//             [name] => John Shopple
+//             [rating] => 1772
+//             [rd] => 29
+//             [calculatedRd] => 29
+//             [lowerBound] => 1713
+//             [lastRatingPeriod] => 2024-05-24T00:00:00.000000Z
+//             [rank] => 54
+//         )
+
+//     [ifpa] => 
+//     [shortcut] => 
+//     [plan] => 
+//     [userCounts] => Array
+//         (
+//             [tournamentOrganizedCount] => 0
+//             [seriesOrganizedCount] => 0
+//             [tournamentPlayCount] => 0
+//             [ratingPeriodCount] => 0
+//         )
+
+return matchplayRequest("https://app.matchplay.events/api/users/$player_id");
+
+}
+
+// Added 6/7/24
+function getIfpaRanking($ifpaId) {
+
+return ifpaRequest("https://api.ifpapinball.com/v2/player/$ifpaId");
 }
